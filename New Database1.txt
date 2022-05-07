@@ -1,0 +1,92 @@
+create database Elec_Bills_System
+go
+use Elec_Bills_System
+go
+create table user_info (
+user_id INT PRIMARY KEY identity,
+user_name nvarchar(50) not null unique,
+password nvarchar(50) not null,
+role_id int 
+)
+
+create table Role (
+R_id int primary key ,
+type nvarchar (20) 
+)
+alter table user_info add constraint c1 foreign key (role_id) references Role (R_id) ON delete cascade ON update cascade
+
+insert into Role (R_id , type )
+values (1 , 'new_customer') , (2 , 'old_customer' ) , (3 , 'operator' ) , (4, 'admin') 
+
+
+create table  customer (
+c_id int identity primary key ,
+cus_name nvarchar(50) not null,
+phone decimal(11,0)  not null, 
+c_area nvarchar (50) not null ,
+attach_path nvarchar (50) ,
+u_id int ,
+constraint c2 foreign key (u_id) references user_info (user_id) ON delete cascade ON update cascade
+)
+
+
+create table status (
+s_id int primary key ,
+state nvarchar (50) 
+)
+
+
+insert into status(s_id , state )
+values (1 , 'pending') , (2 , 'accepted' ) , (3 , 'rejected' )  
+
+
+create table meter_requests (
+m_id int identity primary key ,
+customer_id int ,
+m_state int ,
+
+constraint c3 foreign key (customer_id) references customer (c_id) ON delete cascade ON update cascade ,
+constraint c4 foreign key (m_state) references status (s_id) ON delete cascade ON update cascade
+)
+
+
+
+create table triff (
+t_id int primary key ,
+t_name nvarchar(20),
+kilo_cost float
+)
+insert into triff values(1,'First Triff',1),(2,'Second Triff',1.5),(3,'Third Triff',2.5);
+
+create table customer_triff (
+cf_id int identity primary key ,
+customer_id int ,
+triif_id int ,
+constraint c5 foreign key (customer_id) references customer (c_id) ON delete cascade ON update cascade ,
+constraint c6 foreign key (triif_id) references triff (t_id) ON delete cascade ON update cascade
+)
+
+create table reading (
+r_id int identity primary key,
+customer_id int ,
+units int ,
+r_date date ,
+constraint c7 foreign key (customer_id) references customer (c_id) ON delete cascade ON update cascade
+)
+create table bills (
+b_id int identity primary key ,
+reading_id int ,
+bill_amount float , 
+paid int ,
+collect int,
+constraint c8 foreign key (reading_id) references reading (r_id) ON delete cascade ON update cascade
+)
+
+create table complains (
+com_id int identity primary key ,
+customer_id int ,
+complain nvarchar (500) ,
+attach_path nvarchar (50) ,
+constraint c9 foreign key (customer_id) references customer (c_id) ON delete cascade ON update cascade ,
+)
+
